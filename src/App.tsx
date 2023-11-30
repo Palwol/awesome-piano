@@ -1,5 +1,13 @@
+import Home from './components/Home';
+import GlobalStyle from './styles/GlobalStyle';
+
 function App() {
-  return <div>Hello</div>;
+  return (
+    <>
+      <GlobalStyle />
+      <Home />
+    </>
+  );
 }
 
 export default App;
