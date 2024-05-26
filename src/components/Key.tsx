@@ -1,13 +1,64 @@
 import styled from 'styled-components';
 import hexToRGBA from '@/utils/hexToRGBA';
+import { useEffect, useState } from 'react';
 
 type TProps = {
   name: string;
-  onClick: () => void;
+  filePath: string;
+  audioCtx: AudioContext;
 };
 
-const Key = ({ name, onClick }: TProps) => {
-  return <Container onMouseDown={onClick}>{name}</Container>;
+const Key = ({ name, filePath, audioCtx }: TProps) => {
+  const [fileArrayBuffer, setFileArrayBuffer] = useState<ArrayBuffer>();
+  const [buffer, setBuffer] = useState<AudioBuffer>();
+  const [source, setSource] = useState<AudioBufferSourceNode>();
+
+  const playBuffer = (buffer: AudioBuffer) => {
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start();
+    setSource(source);
+  };
+
+  const handleMouseDown = async () => {
+    if (!fileArrayBuffer) return;
+
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+
+    if (source && buffer) {
+      source.stop();
+      source.disconnect();
+      playBuffer(buffer);
+      return;
+    }
+
+    const _buffer = await audioCtx.decodeAudioData(fileArrayBuffer);
+    playBuffer(_buffer);
+    setBuffer(_buffer);
+  };
+
+  const handleMouseUp = async () => {
+    if (!source) return;
+
+    source.stop();
+  };
+
+  useEffect(() => {
+    try {
+      fetch(filePath).then(async (res) => setFileArrayBuffer(await res.arrayBuffer()));
+    } catch (e) {
+      console.error(`파일을 읽을 수 없어요!`);
+    }
+  }, [filePath]);
+
+  return (
+    <Container onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+      {name}
+    </Container>
+  );
 };
 
 export default Key;
