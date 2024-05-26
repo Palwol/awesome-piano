@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import hexToRGBA from '../utils/hexToRgba';
+import hexToRGBA from '@/utils/hexToRGBA';
 
 type TProps = {
   name: string;
