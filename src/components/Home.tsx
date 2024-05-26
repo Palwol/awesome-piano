@@ -1,9 +1,10 @@
 import styled from 'styled-components';
+import Keyboard from './Keyboard';
 
 const Home = () => {
   return (
     <Main>
-      <h1>Hello</h1>
+      <Keyboard />
     </Main>
   );
 };
@@ -12,6 +13,8 @@ export default Home;
 
 const Main = styled.main`
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
 `;
