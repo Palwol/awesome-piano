@@ -106,7 +106,7 @@ const Key = ({ name, filePath, audioCtx, keyCode }: TProps) => {
 export default Key;
 
 const Container = styled.div<{ $isPlaying: boolean }>`
-  width: 40px;
+  width: 55px;
   height: 190px;
   padding: 10px;
   border: 1px solid ${hexToRGBA('#959595', 0.5)};
