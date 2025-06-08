@@ -1,50 +1,77 @@
 import styled from 'styled-components';
 import hexToRGBA from '@/utils/hexToRGBA';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 type TProps = {
   name: string;
   filePath: string;
   audioCtx: AudioContext;
+  keyCode: string;
 };
 
-const Key = ({ name, filePath, audioCtx }: TProps) => {
+const Key = ({ name, filePath, audioCtx, keyCode }: TProps) => {
   const [fileArrayBuffer, setFileArrayBuffer] = useState<ArrayBuffer>();
   const [buffer, setBuffer] = useState<AudioBuffer>();
-  const [source, setSource] = useState<AudioBufferSourceNode>();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [source, setSource] = useState<AudioBufferSourceNode | null>(null);
 
-  const playBuffer = (buffer: AudioBuffer) => {
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioCtx.destination);
-    source.start();
-    setSource(source);
-  };
-
-  const handleMouseDown = async () => {
-    if (!fileArrayBuffer) return;
+  const playSound = useCallback(async () => {
+    if (!buffer || isPlaying || source) return;
 
     if (audioCtx.state === 'suspended') {
       await audioCtx.resume();
     }
 
-    if (source && buffer) {
-      source.stop();
-      source.disconnect();
-      playBuffer(buffer);
-      return;
-    }
+    const newSource = audioCtx.createBufferSource();
+    newSource.buffer = buffer;
+    newSource.connect(audioCtx.destination);
 
-    const _buffer = await audioCtx.decodeAudioData(fileArrayBuffer);
-    playBuffer(_buffer);
-    setBuffer(_buffer);
-  };
+    newSource.start();
+    setSource(newSource);
+    setIsPlaying(true);
 
-  const handleMouseUp = async () => {
-    if (!source) return;
+    newSource.onended = () => {
+      setIsPlaying(false);
+      setSource(null);
+    };
+  }, [buffer, audioCtx, isPlaying, source]);
+
+  const stopSound = useCallback(() => {
+    if (!isPlaying || !source) return;
 
     source.stop();
-  };
+    source.disconnect();
+    setIsPlaying(false);
+    setSource(null);
+  }, [isPlaying, source]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === keyCode && !e.repeat) {
+        playSound();
+      }
+    },
+    [keyCode, playSound],
+  );
+
+  const handleKeyUp = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === keyCode) {
+        stopSound();
+      }
+    },
+    [keyCode, stopSound],
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [handleKeyDown, handleKeyUp]);
 
   useEffect(() => {
     try {
@@ -54,8 +81,14 @@ const Key = ({ name, filePath, audioCtx }: TProps) => {
     }
   }, [filePath]);
 
+  useEffect(() => {
+    if (fileArrayBuffer) {
+      audioCtx.decodeAudioData(fileArrayBuffer).then(setBuffer);
+    }
+  }, [fileArrayBuffer, audioCtx]);
+
   return (
-    <Container onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+    <Container onMouseDown={playSound} onMouseUp={stopSound} $isPlaying={isPlaying}>
       {name}
     </Container>
   );
@@ -63,13 +96,14 @@ const Key = ({ name, filePath, audioCtx }: TProps) => {
 
 export default Key;
 
-const Container = styled.div`
+const Container = styled.div<{ $isPlaying: boolean }>`
   width: 40px;
   height: 190px;
   padding: 10px;
   border: 1px solid ${hexToRGBA('#959595', 0.5)};
   border-radius: 5px;
-  background-color: #ffffff;
-  box-shadow: 0 5px 1px rgba(32, 32, 32, 0.2);
+  background-color: ${(props) => (props.$isPlaying ? '#f0f0f0' : '#ffffff')};
+  box-shadow: 0 ${(props) => (props.$isPlaying ? '2px' : '5px')} 1px rgba(32, 32, 32, 0.2);
   cursor: pointer;
+  transition: all 0.1s ease;
 `;
