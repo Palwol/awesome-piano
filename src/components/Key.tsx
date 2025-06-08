@@ -23,8 +23,17 @@ const Key = ({ name, filePath, audioCtx, keyCode }: TProps) => {
     }
 
     const newSource = audioCtx.createBufferSource();
+    const gainNode = audioCtx.createGain();
+
+    // ADSR 엔벨로프 설정
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.01); // Attack
+    gainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.1); // Decay
+    gainNode.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 0.5); // Sustain
+
     newSource.buffer = buffer;
-    newSource.connect(audioCtx.destination);
+    newSource.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
 
     newSource.start();
     setSource(newSource);
