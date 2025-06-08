@@ -63,32 +63,7 @@ const Keyboard = () => {
 
   return (
     <Container>
-      <Row>
-        {whiteKeys.map((key) => (
-          <Key
-            key={key.keyCode}
-            name={key.name}
-            filePath={key.filePath}
-            audioCtx={audioCtx}
-            keyCode={key.keyCode}
-            isBlack={key.isBlack}
-            left={key.left}
-          />
-        ))}
-        <BlackRow>
-          {blackKeys.map((key) => (
-            <Key
-              key={key.keyCode}
-              name={key.name}
-              filePath={key.filePath}
-              audioCtx={audioCtx}
-              keyCode={key.keyCode}
-              isBlack={key.isBlack}
-              left={key.left}
-            />
-          ))}
-        </BlackRow>
-      </Row>
+      <Logo>Awesome Piano</Logo>
       <Row>
         {whiteKeys2.map((key) => (
           <Key
@@ -115,6 +90,32 @@ const Keyboard = () => {
           ))}
         </BlackRow>
       </Row>
+      <Row>
+        {whiteKeys.map((key) => (
+          <Key
+            key={key.keyCode}
+            name={key.name}
+            filePath={key.filePath}
+            audioCtx={audioCtx}
+            keyCode={key.keyCode}
+            isBlack={key.isBlack}
+            left={key.left}
+          />
+        ))}
+        <BlackRow>
+          {blackKeys.map((key) => (
+            <Key
+              key={key.keyCode}
+              name={key.name}
+              filePath={key.filePath}
+              audioCtx={audioCtx}
+              keyCode={key.keyCode}
+              isBlack={key.isBlack}
+              left={key.left}
+            />
+          ))}
+        </BlackRow>
+      </Row>
     </Container>
   );
 };
@@ -128,6 +129,14 @@ const Container = styled.div`
   align-items: center;
   height: 100vh;
   gap: 20px;
+`;
+
+const Logo = styled.h1`
+  font-size: 3rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 2rem;
+  font-family: 'Arial', sans-serif;
 `;
 
 const Row = styled.div`
