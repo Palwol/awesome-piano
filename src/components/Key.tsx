@@ -8,9 +8,10 @@ type TProps = {
   audioCtx: AudioContext;
   keyCode: string;
   isBlack?: boolean;
+  left?: number;
 };
 
-const Key = ({ name, filePath, audioCtx, keyCode, isBlack = false }: TProps) => {
+const Key = ({ name, filePath, audioCtx, keyCode, isBlack = false, left = 0 }: TProps) => {
   const [fileArrayBuffer, setFileArrayBuffer] = useState<ArrayBuffer>();
   const [buffer, setBuffer] = useState<AudioBuffer>();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -98,7 +99,7 @@ const Key = ({ name, filePath, audioCtx, keyCode, isBlack = false }: TProps) => 
   }, [fileArrayBuffer, audioCtx]);
 
   return (
-    <Container onMouseDown={playSound} onMouseUp={stopSound} $isPlaying={isPlaying} $isBlack={isBlack}>
+    <Container onMouseDown={playSound} onMouseUp={stopSound} $isPlaying={isPlaying} $isBlack={isBlack} $left={left}>
       <KeyName $isBlack={isBlack}>{name}</KeyName>
     </Container>
   );
@@ -106,7 +107,7 @@ const Key = ({ name, filePath, audioCtx, keyCode, isBlack = false }: TProps) => 
 
 export default Key;
 
-const Container = styled.div<{ $isPlaying: boolean; $isBlack: boolean }>`
+const Container = styled.div<{ $isPlaying: boolean; $isBlack: boolean; $left: number }>`
   width: ${(props) => (props.$isBlack ? '45px' : '55px')};
   height: ${(props) => (props.$isBlack ? '120px' : '190px')};
   padding: 10px;
@@ -121,10 +122,9 @@ const Container = styled.div<{ $isPlaying: boolean; $isBlack: boolean }>`
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  position: relative;
+  position: ${(props) => (props.$isBlack ? 'absolute' : 'relative')};
+  left: ${(props) => (props.$isBlack ? `${props.$left}px` : '0')};
   z-index: ${(props) => (props.$isBlack ? 1 : 0)};
-  margin: ${(props) => (props.$isBlack ? '0 -22.5px' : '0')};
-  margin-top: ${(props) => (props.$isBlack ? '-70px' : '0')};
 `;
 
 const KeyName = styled.span<{ $isBlack: boolean }>`
