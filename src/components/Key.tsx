@@ -7,9 +7,10 @@ type TProps = {
   filePath: string;
   audioCtx: AudioContext;
   keyCode: string;
+  isBlack?: boolean;
 };
 
-const Key = ({ name, filePath, audioCtx, keyCode }: TProps) => {
+const Key = ({ name, filePath, audioCtx, keyCode, isBlack = false }: TProps) => {
   const [fileArrayBuffer, setFileArrayBuffer] = useState<ArrayBuffer>();
   const [buffer, setBuffer] = useState<AudioBuffer>();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -97,21 +98,22 @@ const Key = ({ name, filePath, audioCtx, keyCode }: TProps) => {
   }, [fileArrayBuffer, audioCtx]);
 
   return (
-    <Container onMouseDown={playSound} onMouseUp={stopSound} $isPlaying={isPlaying}>
-      <KeyName>{name}</KeyName>
+    <Container onMouseDown={playSound} onMouseUp={stopSound} $isPlaying={isPlaying} $isBlack={isBlack}>
+      <KeyName $isBlack={isBlack}>{name}</KeyName>
     </Container>
   );
 };
 
 export default Key;
 
-const Container = styled.div<{ $isPlaying: boolean }>`
-  width: 55px;
-  height: 190px;
+const Container = styled.div<{ $isPlaying: boolean; $isBlack: boolean }>`
+  width: ${(props) => (props.$isBlack ? '45px' : '55px')};
+  height: ${(props) => (props.$isBlack ? '120px' : '190px')};
   padding: 10px;
   border: 1px solid ${hexToRGBA('#959595', 0.5)};
   border-radius: 5px;
-  background-color: ${(props) => (props.$isPlaying ? '#f0f0f0' : '#ffffff')};
+  background-color: ${(props) =>
+    props.$isBlack ? (props.$isPlaying ? '#333' : '#000') : props.$isPlaying ? '#f0f0f0' : '#ffffff'};
   box-shadow: 0 ${(props) => (props.$isPlaying ? '2px' : '5px')} 1px rgba(32, 32, 32, 0.2);
   cursor: pointer;
   transition: all 0.1s ease;
@@ -119,10 +121,14 @@ const Container = styled.div<{ $isPlaying: boolean }>`
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
+  position: relative;
+  z-index: ${(props) => (props.$isBlack ? 1 : 0)};
+  margin: ${(props) => (props.$isBlack ? '0 -22.5px' : '0')};
+  margin-top: ${(props) => (props.$isBlack ? '-70px' : '0')};
 `;
 
-const KeyName = styled.span`
+const KeyName = styled.span<{ $isBlack: boolean }>`
   font-size: 16px;
-  color: #666;
+  color: ${(props) => (props.$isBlack ? '#fff' : '#666')};
   margin-bottom: 5px;
 `;
