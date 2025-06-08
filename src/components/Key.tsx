@@ -98,7 +98,7 @@ const Key = ({ name, filePath, audioCtx, keyCode }: TProps) => {
 
   return (
     <Container onMouseDown={playSound} onMouseUp={stopSound} $isPlaying={isPlaying}>
-      {name}
+      <KeyName>{name}</KeyName>
     </Container>
   );
 };
@@ -115,4 +115,14 @@ const Container = styled.div<{ $isPlaying: boolean }>`
   box-shadow: 0 ${(props) => (props.$isPlaying ? '2px' : '5px')} 1px rgba(32, 32, 32, 0.2);
   cursor: pointer;
   transition: all 0.1s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const KeyName = styled.span`
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 5px;
 `;
